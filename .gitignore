@@ -1,19 +1,25 @@
+# Python Gitignore File
+# This file helps Git ignore specific files and directories that shouldn't be tracked in version control
+
 # Byte-compiled / optimized / DLL files
+# Python creates these files to improve performance, but they don't need to be version controlled
 __pycache__/
 *.py[cod]
 *$py.class
 
 # C extensions
+# Compiled C library files
 *.so
 
 # Distribution / packaging
+# Files and directories related to Python package distribution
 .Python
-env/
+env/                    # Virtual environment directories
 venv/
 ENV/
-*.egg-info/
+*.egg-info/             # Package metadata
 _build/
-dist/
+dist/                   # Distribution and build directories
 build/
 eggs/
 parts/
@@ -24,55 +30,67 @@ share/bbb-pkg/
 sdist/
 
 # PyInstaller
-#  Usually these files are written by a python script from scratch
-#  so putting them in source control is probably not a good idea
-#  unless they're really needed
+# Executable files and build artifacts (usually not needed in version control)
+# Uncomment if you want to include these
 # build/
 # dist/
 # /onefile
 
-# Spyder project settings
-.spyderproject
+# IDE-specific project settings
+.spyderproject           # Spyder IDE settings
 .spyproject
+.ropeproject             # Rope refactoring library settings
 
-# Rope project settings
-.ropeproject
-
-# Environments
-.env
+# Environment and configuration files
+.env                    # Environment variable files
+.venv/                  # Explicitly ignore .venv directory
 .venv
+venv/
 env/
 venv/
 ENV/
-*/.venv/
+*/.venv/                # Virtual environments in subdirectories
 */.env/
 
 # Jupyter Notebook
-.ipynb_checkpoints
+.ipynb_checkpoints      # Jupyter notebook temporary files
 
-# pyenv
-#   For a library or package, you might want to include these files since
-#   they are commonly needed to run tests
+# Python version management
+# Uncomment if you want to track Python version
 # .python-version
 
-# pip
-pip-log.txt
+# Package management logs and caches
+pip-log.txt             # Pip installation logs
 pip-delete-this-directory.txt
 pip-download-cache/
 
-# poetry
-poetry.lock
+# Dependency management
+poetry.lock             # Poetry dependency lock file
 
-# twine
-dist/
+# Distribution uploads
+dist/                   # Distribution files for PyPI
 
-# celery beat schedule file
+# Celery (distributed task queue) schedule
 celerybeat-schedule
 
-# Sphinx documentation
-docs/_build/
+# Documentation builds
+docs/_build/            # Sphinx documentation build directory
 
-# Temp files
-*.swp
-*.tmp
-tmp/
+# Temporary and swap files
+*.swp                   # Vim swap files
+*.tmp                   # Temporary files
+tmp/                    # Temporary directory
+
+# Project-specific ignores
+# Ignore all hidden folders (those starting with a dot)
+# This prevents tracking of system or hidden configuration folders
+.**/
+
+# Ignore specific project folders
+# Useful for keeping old or deprecated code, temporary storage, or system-specific folders out of version control
+.RooCodeMemoryZip/     # Ignore RooCodeMemory temporary storage folder
+archive/               # Ignore archive folder with old or deprecated code
+
+# Ignore specific files that shouldn't be tracked
+# For example, global workspace rules that might contain sensitive or local-specific configurations
+ws_global_rules.md
