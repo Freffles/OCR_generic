@@ -1,0 +1,78 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+env/
+venv/
+ENV/
+*.egg-info/
+_build/
+dist/
+build/
+eggs/
+parts/
+wheels/
+share/bbb-pkg/
+*.whl
+*.egg
+sdist/
+
+# PyInstaller
+#  Usually these files are written by a python script from scratch
+#  so putting them in source control is probably not a good idea
+#  unless they're really needed
+# build/
+# dist/
+# /onefile
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+*/.venv/
+*/.env/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+#   For a library or package, you might want to include these files since
+#   they are commonly needed to run tests
+# .python-version
+
+# pip
+pip-log.txt
+pip-delete-this-directory.txt
+pip-download-cache/
+
+# poetry
+poetry.lock
+
+# twine
+dist/
+
+# celery beat schedule file
+celerybeat-schedule
+
+# Sphinx documentation
+docs/_build/
+
+# Temp files
+*.swp
+*.tmp
+tmp/
