@@ -42,6 +42,8 @@ sdist/
 .ropeproject             # Rope refactoring library settings
 
 # Environment and configuration files
+client_secret*
+token.json
 .env                    # Environment variable files
 .venv/                  # Explicitly ignore .venv directory
 .venv
