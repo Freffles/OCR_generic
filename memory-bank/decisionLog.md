@@ -42,3 +42,41 @@
 - **Decision**: Option 2 - Use configurable regex patterns
 - **Rationale**: Configurable regex patterns provide flexibility to handle different invoice formats while being simpler to implement than machine learning.
 - **Consequences**: Need to develop a configuration system for regex patterns.
+
+## Decision 005: Invoice Pattern Configuration Approach
+- **Date**: 2025-03-12
+- **Context**: Need to implement adaptable invoice parsing for different layouts.
+- **Options Considered**:
+  1. Hardcode patterns in code
+  2. Use JSON configuration file
+  3. Use database storage
+- **Decision**: Option 2 - Use JSON configuration file
+- **Rationale**: JSON configuration provides flexibility to add/modify patterns without code changes, while being simpler than database storage.
+- **Consequences**: Need to maintain and validate pattern configurations.
+
+## Decision 006: Line Item Extraction Strategy
+- **Date**: 2025-03-12
+- **Context**: Need to extract line items from invoice tables.
+- **Options Considered**:
+  1. Simple line-by-line parsing
+  2. Table structure detection
+  3. Machine learning-based table extraction
+- **Decision**: Option 2 - Table structure detection
+- **Rationale**: Table structure detection provides better accuracy than line-by-line parsing while being more practical than ML approach.
+- **Consequences**: Need to handle variations in table formats and layouts.
+
+## Decision 007: OAuth Implementation Details
+- **Date**: 2025-03-12
+- **Context**: Need to implement the simplified OAuth flow for single-user, dual-API access.
+- **Options Considered**:
+  1. Modify existing code with minimal changes
+  2. Complete rewrite with new architecture
+  3. Hybrid approach with significant refactoring
+- **Decision**: Option 3 - Hybrid approach with significant refactoring
+- **Rationale**: The existing code had multi-user logic deeply embedded, requiring significant changes. A complete rewrite would lose valuable error handling and token management logic. The hybrid approach preserves the best parts while simplifying the overall architecture.
+- **Consequences**:
+  - Simplified API with clearer function names and parameters
+  - Improved error handling with custom AuthError class
+  - Better logging for debugging authentication issues
+  - Consolidated token storage for both API scopes
+  - Need for comprehensive testing to ensure reliability

@@ -1,60 +1,63 @@
-import json
 import os
-from google_auth_oauthlib.flow import InstalledAppFlow
-from google.oauth2.credentials import Credentials
-from google.auth.exceptions import RefreshError
-from google.auth.transport.requests import Request
-from oauth_handler import get_paths  # Import get_paths from oauth_handler
+import logging
+from oauth_handler import get_credentials, get_credentials_path, AuthError, DEFAULT_CREDENTIALS_DIR, DEFAULT_TOKEN_FILE
 
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
-# Define OAuth scopes centrally
-SCOPES = [
-    'https://www.googleapis.com/auth/gmail.readonly',
-    'https://www.googleapis.com/auth/gmail.modify',
-    'https://www.googleapis.com/auth/spreadsheets',
-    'https://www.googleapis.com/auth/youtube.readonly'
-]
-
-def load_credentials(user_folder):
-    """Load OAuth 2.0 credentials from the specified user folder."""
-    client_secret_file, token_file = get_paths(user_folder)
-    creds = None
-
-    if os.path.exists(token_file):
-        with open(token_file, 'r') as token:
-            creds = Credentials.from_authorized_user_info(json.load(token), SCOPES)
-
-    return creds
-
-def refresh_or_reauthorize_credentials(creds, client_secret_file, token_file):
-    """Refresh or reauthorize credentials."""
+def reauthorize(credentials_dir=DEFAULT_CREDENTIALS_DIR, token_file=DEFAULT_TOKEN_FILE):
+    """
+    Force reauthorization of OAuth credentials.
+    
+    This utility function is used to manually trigger the OAuth flow when needed,
+    such as when scopes have changed or when the token is corrupted.
+    
+    Args:
+        credentials_dir: Directory containing the client_secret file
+        token_file: Path to the token file (relative to credentials_dir)
+    
+    Returns:
+        True if reauthorization was successful, False otherwise
+    """
+    token_path = os.path.join(credentials_dir, token_file)
+    
+    # Remove existing token file if it exists
+    if os.path.exists(token_path):
+        try:
+            os.remove(token_path)
+            logger.info(f"Removed existing token file: {token_path}")
+        except Exception as e:
+            logger.error(f"Failed to remove token file: {e}")
+            return False
+    
+    # Trigger new OAuth flow
     try:
-        creds.refresh(Request())
-        with open(token_file, 'w') as token_file:
-            token_file.write(creds.to_json())
-            print("Token refreshed successfully.")
-    except RefreshError:
-        flow = InstalledAppFlow.from_client_secrets_file(client_secret_file, SCOPES)
-        creds = flow.run_local_server(port=0)
-        with open(token_file, 'w') as token_file:
-            token_file.write(creds.to_json())
-            print("There was a refresh error but token now refreshed successfully.")
-    return creds
+        get_credentials(credentials_dir, token_file)
+        logger.info("Successfully reauthorized and saved new credentials")
+        return True
+    except AuthError as e:
+        logger.error(f"Reauthorization failed: {e}")
+        return False
+    except Exception as e:
+        logger.error(f"Unexpected error during reauthorization: {e}")
+        return False
 
 def main():
-    users = ['rayluckins', 'wozard']
+    """
+    Command-line entry point for reauthorization.
     
-    for user in users:
-        try:
-            client_secret_file, token_file = get_paths(user)
-            creds = load_credentials(user)
-            
-            if not creds or not creds.valid:
-                creds = refresh_or_reauthorize_credentials(creds, client_secret_file, token_file)
-            else:
-                print(f"Token for {user} is still valid, no action required.")
-        except Exception as e:
-            print(f"Error processing {user}: {e}")
+    This function is called when the script is run directly.
+    It attempts to reauthorize the OAuth credentials and prints the result.
+    """
+    try:
+        success = reauthorize()
+        if success:
+            print("Reauthorization completed successfully.")
+        else:
+            print("Reauthorization failed. Check the logs for details.")
+    except Exception as e:
+        print(f"Error during reauthorization: {e}")
 
 if __name__ == '__main__':
     main()

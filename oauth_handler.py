@@ -5,88 +5,93 @@ from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from google.auth.exceptions import RefreshError
-from pm_convert import convert_to_aedt  # Ensure this import is available in your context
 
-# Configure logging to minimize verbosity
-logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
-# Define OAuth scopes centrally
+# Define OAuth scopes for both Gmail and Google Sheets
 SCOPES = [
     'https://www.googleapis.com/auth/gmail.readonly',
     'https://www.googleapis.com/auth/gmail.modify',
-    'https://www.googleapis.com/auth/spreadsheets',
-    'https://www.googleapis.com/auth/youtube.readonly'
+    'https://www.googleapis.com/auth/spreadsheets'
 ]
 
-def get_paths(user_folder):
-    """Construct paths to the client secret and token files based on user folder."""
-    client_secret_file = None
-    token_file = f'{user_folder}/token.json'
+# Default paths for token and client secret files
+DEFAULT_TOKEN_FILE = 'token.json'
+DEFAULT_CREDENTIALS_DIR = '.'
 
-    # Locate the client_secret file within the user's folder
-    for file_name in os.listdir(user_folder):
+def get_credentials_path(credentials_dir=DEFAULT_CREDENTIALS_DIR):
+    """Find the client_secret file in the credentials directory."""
+    for file_name in os.listdir(credentials_dir):
         if file_name.startswith('client_secret_') and file_name.endswith('.json'):
-            client_secret_file = os.path.join(user_folder, file_name)
-            break
+            return os.path.join(credentials_dir, file_name)
+    
+    raise FileNotFoundError(f"No client_secret file found in {credentials_dir}")
 
-    if client_secret_file is None:
-        raise FileNotFoundError(f"No client_secret file found in {user_folder}")
-
-    return client_secret_file, token_file
-
-def load_credentials(user_folder):
-    """Load and refresh OAuth 2.0 credentials."""
-    client_secret_file, token_file = get_paths(user_folder)
+def get_credentials(credentials_dir=DEFAULT_CREDENTIALS_DIR, token_file=DEFAULT_TOKEN_FILE):
+    """
+    Get OAuth credentials for Google APIs.
+    
+    This function handles the OAuth flow for a single user, requesting access to both
+    Gmail and Google Sheets APIs in a single authorization flow.
+    
+    Args:
+        credentials_dir: Directory containing the client_secret file
+        token_file: Path to the token file (relative to credentials_dir)
+    
+    Returns:
+        Google OAuth credentials object
+    
+    Raises:
+        FileNotFoundError: If client_secret file is not found
+        AuthError: If authentication fails
+    """
+    token_path = os.path.join(credentials_dir, token_file)
     creds = None
-
-    # If the token file exists, load existing credentials
-    if os.path.exists(token_file):
-        with open(token_file, 'r') as token:
-            creds = Credentials.from_authorized_user_info(json.load(token))
-
-    # If there are no credentials or if they are not valid, refresh or reauthorize
+    
+    # Load existing credentials if available
+    if os.path.exists(token_path):
+        try:
+            with open(token_path, 'r') as token:
+                creds = Credentials.from_authorized_user_info(json.load(token), SCOPES)
+            logger.info("Loaded existing credentials")
+        except Exception as e:
+            logger.warning(f"Error loading credentials: {e}")
+    
+    # If credentials don't exist or are invalid, refresh or get new ones
     if not creds or not creds.valid:
-        creds = refresh_or_reauthorize_credentials(creds, client_secret_file, token_file)
-
-    return creds
-
-def refresh_or_reauthorize_credentials(creds, client_secret_file, token_file):
-    """Refresh or reauthorize credentials."""
-    try:
         if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-            
-            # Create a dictionary with credential information
-            token_data = {
-                'token': creds.token,
-                'refresh_token': creds.refresh_token,
-                'client_id': creds.client_id,
-                'client_secret': creds.client_secret,
-                # Safely handle potential None for scopes
-                'scopes': list(creds.scopes) if creds.scopes is not None else []
-            }
-            
-            # Safely write token data
-            with open(token_file, 'w') as f:
-                json.dump(token_data, f)
-        else:
-            raise RefreshError
-    except RefreshError:
-        flow = InstalledAppFlow.from_client_secrets_file(client_secret_file, SCOPES)
-        creds = flow.run_local_server(port=0)
+            try:
+                logger.info("Refreshing expired credentials")
+                creds.refresh(Request())
+            except RefreshError as e:
+                logger.warning(f"Failed to refresh token: {e}")
+                creds = None
         
-        # Create a dictionary with new credential information
-        token_data = {
-            'token': creds.token,
-            'refresh_token': creds.refresh_token,
-            'client_id': creds.client_id,
-            'client_secret': creds.client_secret,
-            # Safely handle potential None for scopes
-            'scopes': list(creds.scopes) if creds.scopes is not None else []
-        }
+        # If refresh failed or no credentials exist, run the OAuth flow
+        if not creds:
+            try:
+                client_secret_path = get_credentials_path(credentials_dir)
+                logger.info(f"Starting OAuth flow with client secret: {client_secret_path}")
+                
+                flow = InstalledAppFlow.from_client_secrets_file(client_secret_path, SCOPES)
+                creds = flow.run_local_server(port=0)
+                logger.info("Successfully obtained new credentials")
+            except Exception as e:
+                logger.error(f"Authentication failed: {e}")
+                raise AuthError(f"Failed to authenticate: {e}")
         
-        # Safely write token data
-        with open(token_file, 'w') as f:
-            json.dump(token_data, f)
+        # Save the credentials for future use
+        try:
+            with open(token_path, 'w') as token:
+                token.write(creds.to_json())
+            logger.info(f"Saved credentials to {token_path}")
+        except Exception as e:
+            logger.warning(f"Failed to save credentials: {e}")
     
     return creds
+
+class AuthError(Exception):
+    """Exception raised for authentication errors."""
+    pass

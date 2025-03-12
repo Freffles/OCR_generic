@@ -1,0 +1,24 @@
+# Core Dependencies
+pdfplumber==0.10.3  # PDF text extraction
+pytesseract==0.3.10  # OCR for image-based PDFs
+gspread==5.12.4  # Google Sheets integration
+google-api-python-client==2.118.0  # Gmail API
+oauth2client==4.1.3  # OAuth 2.0 handling
+
+# Testing Dependencies
+pytest==7.4.4  # Testing framework
+pytest-cov==4.1.0  # Test coverage reporting
+pytest-mock==3.12.0  # Mocking support
+pytest-asyncio==0.23.4  # Async test support
+freezegun==1.4.0  # Date/time mocking
+
+# Development Dependencies
+black==24.1.1  # Code formatting
+isort==5.13.2  # Import sorting
+pylint==3.0.3  # Code linting
+mypy==1.8.0  # Type checking
+python-dotenv==1.0.1  # Environment variable management
+
+# Documentation
+sphinx==7.2.6  # Documentation generation
+sphinx-rtd-theme==2.0.0  # Documentation theme

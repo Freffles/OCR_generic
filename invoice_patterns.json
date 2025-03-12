@@ -1,0 +1,64 @@
+{
+    "invoice_types": {
+        "applied_communication": {
+            "name": "Applied Communication Skills Pty Ltd",
+            "patterns": {
+                "invoice_number": "Invoice Number[:\\s]*([A-Z0-9\\-_]+)",
+                "invoice_date": "Invoice Date[:\\s]*(\\d{1,2}/\\d{1,2}/\\d{4})",
+                "due_date": "Due Date[:\\s]*(\\d{1,2}/\\d{1,2}/\\d{4})",
+                "total_amount": "TOTAL[\\s\\n]*\\$?([\\d.,]+)",
+                "participant": "Provided To:\\s*([A-Za-z\\s]+?)(?=\\s*$|\\s*Description)",
+                "line_items": {
+                    "table_start": "Description\\s+Quantity\\s+Unit Price\\s+Amount",
+                    "row": "([^\\n]+?)\\s+(\\d+(?:\\.\\d+)?)\\s+\\$?([\\d.,]+)\\s+\\$?([\\d.,]+)",
+                    "table_end": "Sub\\s*Total|TOTAL"
+                }
+            }
+        },
+        "waves_of_harmony": {
+            "name": "Waves of Harmony Pty Ltd",
+            "patterns": {
+                "invoice_number": "Invoice\\s*#[:\\s]*([A-Z0-9\\-_]+)",
+                "invoice_date": "Date[:\\s]*(\\d{1,2}/\\d{1,2}/\\d{4})",
+                "due_date": "Due[:\\s]*(\\d{1,2}/\\d{1,2}/\\d{4})",
+                "total_amount": "Total Due[\\s\\n]*\\$?([\\d.,]+)",
+                "participant": "Bill To[:\\s]*([A-Za-z\\s]+?)(?=\\s*$|\\s*Service)",
+                "line_items": {
+                    "table_start": "Service\\s+Qty\\s+Rate\\s+Amount",
+                    "row": "([^\\n]+?)\\s+(\\d+(?:\\.\\d+)?)\\s+\\$?([\\d.,]+)\\s+\\$?([\\d.,]+)",
+                    "table_end": "Sub\\s*Total|Total Due"
+                }
+            }
+        },
+        "aplus_disability": {
+            "name": "APLUS DISABILITY SERVICE GROUP PTY LTD",
+            "patterns": {
+                "invoice_number": "Invoice No[:\\s]*([A-Z0-9\\-_]+)",
+                "invoice_date": "Date[:\\s]*(\\d{1,2}/\\d{1,2}/\\d{4})",
+                "due_date": "Payment Due[:\\s]*(\\d{1,2}/\\d{1,2}/\\d{4})",
+                "total_amount": "Invoice Total[\\s\\n]*\\$?([\\d.,]+)",
+                "participant": "Client[:\\s]*([A-Za-z\\s]+?)(?=\\s*$|\\s*Service)",
+                "line_items": {
+                    "table_start": "Service Description\\s+Qty\\s+Price\\s+Total",
+                    "row": "([^\\n]+?)\\s+(\\d+(?:\\.\\d+)?)\\s+\\$?([\\d.,]+)\\s+\\$?([\\d.,]+)",
+                    "table_end": "Sub\\s*Total|Invoice Total"
+                }
+            }
+        },
+        "generic": {
+            "name": "Generic Invoice",
+            "patterns": {
+                "invoice_number": "(?i)Invoice\\s*(?:No|Number|#)?[:\\s]*([A-Z0-9\\-_]+)",
+                "invoice_date": "(?i)(?:Invoice\\s*)?Date[:\\s]*(\\d{1,2}[/\\-]\\d{1,2}[/\\-]\\d{4})",
+                "due_date": "(?i)(?:Due|Payment\\s*Due)[:\\s]*(\\d{1,2}[/\\-]\\d{1,2}[/\\-]\\d{4})",
+                "total_amount": "(?i)(?:Total|Amount\\s*Due|Invoice\\s*Total)[\\s\\n]*\\$?([\\d.,]+)",
+                "participant": "(?i)(?:Bill\\s*To|Client|Customer|Provided\\s*To)[:\\s]*([A-Za-z\\s]+?)(?=\\s*$|\\s*(?:Description|Service|Item))",
+                "line_items": {
+                    "table_start": "(?i)(?:Description|Service|Item)\\s+(?:Qty|Quantity)\\s+(?:Rate|Price|Unit\\s*Price)\\s+(?:Amount|Total)",
+                    "row": "([^\\n]+?)\\s+(\\d+(?:\\.\\d+)?)\\s+\\$?([\\d.,]+)\\s+\\$?([\\d.,]+)",
+                    "table_end": "(?i)(?:Sub\\s*Total|Total|Invoice\\s*Total)"
+                }
+            }
+        }
+    }
+}
