@@ -2,8 +2,10 @@
 pdfplumber==0.10.3  # PDF text extraction
 pytesseract==0.3.10  # OCR for image-based PDFs
 gspread==5.12.4  # Google Sheets integration
-google-api-python-client==2.118.0  # Gmail API
-oauth2client==4.1.3  # OAuth 2.0 handling
+google-api-python-client==2.118.0  # Google APIs (Gmail, Sheets)
+google-auth==2.27.0  # Google authentication
+google-auth-oauthlib==1.2.0  # OAuth 2.0 for Google APIs
+google-auth-httplib2==0.1.1  # HTTP client for Google Auth
 
 # Testing Dependencies
 pytest==7.4.4  # Testing framework

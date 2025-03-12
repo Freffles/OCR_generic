@@ -1,121 +1,111 @@
 # System Patterns
 
-## Architecture Patterns
+## Design Patterns
 
-### 1. Pipeline Processing
-The system uses a pipeline pattern for invoice processing:
-1. Extract text from PDF
-2. Parse text to identify invoice data
-3. Transform data into structured format
-4. Store data in Google Sheets
+### 1. Factory Pattern
+- **Used In**: extract_text.py
+- **Purpose**: Creates appropriate text extractor based on PDF type
+- **Implementation**: Factory function that determines if a PDF is text-based or image-based and returns the appropriate extractor
 
-This pattern allows for modular development and testing of each stage independently.
+### 2. Strategy Pattern
+- **Used In**: parse_invoice.py
+- **Purpose**: Allows different parsing strategies based on invoice type
+- **Implementation**: Configurable regex patterns in invoice_patterns.json
 
-### 2. Adapter Pattern
-The system uses adapters to handle different invoice formats and layouts:
-- Each invoice type has its own pattern configuration
-- Generic patterns serve as a fallback
-- Pattern adapters normalize data to a common format
+### 3. Adapter Pattern
+- **Used In**: sheets_integration.py
+- **Purpose**: Adapts Invoice objects to Google Sheets row format
+- **Implementation**: Functions that convert Invoice objects to row arrays for Google Sheets
 
-### 3. Strategy Pattern
-Different strategies are used for:
-- Text extraction: pdfplumber vs pytesseract
-- Invoice parsing: vendor-specific vs generic patterns
-- Line item extraction: table-based vs line-based
+### 4. Decorator Pattern
+- **Used In**: oauth_handler.py
+- **Purpose**: Adds authentication and retry functionality to API calls
+- **Implementation**: Wrapper functions that handle authentication and retries
 
-### 4. Repository Pattern
-Google Sheets acts as a repository for storing processed invoice data, with clear interfaces for data access and manipulation.
+### 5. Repository Pattern
+- **Used In**: sheets_integration.py
+- **Purpose**: Abstracts data storage operations
+- **Implementation**: Functions that handle CRUD operations on Google Sheets
 
-### 5. Configuration Pattern
-External configuration files are used to store:
-- Application settings (config.json)
-- Email settings (email_config.json)
-- Invoice patterns (invoice_patterns.json)
+### 6. Retry Pattern
+- **Used In**: sheets_integration.py
+- **Purpose**: Handles transient API failures
+- **Implementation**: Retry logic with fixed delay for API calls
+
+## Architectural Patterns
+
+### 1. Layered Architecture
+- **Layers**:
+  - Data Access Layer (extract_text.py, sheets_integration.py)
+  - Business Logic Layer (parse_invoice.py, models.py)
+  - Presentation Layer (process_invoices.py, CLI interface)
+- **Purpose**: Separation of concerns, maintainability
+
+### 2. Service-Oriented Architecture
+- **Services**:
+  - Text Extraction Service (extract_text.py)
+  - Invoice Parsing Service (parse_invoice.py)
+  - Data Storage Service (sheets_integration.py)
+  - Authentication Service (oauth_handler.py)
+- **Purpose**: Modularity, reusability
 
 ## Code Patterns
 
-### 1. Data Class Pattern
-Python dataclasses are used to define structured data models for:
-- Invoice data
-- Line items
-- Configuration settings
+### 1. Error Handling
+- **Pattern**: Try-except blocks with specific exception types
+- **Purpose**: Robust error handling
+- **Example**:
+  ```python
+  try:
+      # Operation that might fail
+  except SpecificError as e:
+      # Handle specific error
+  except Exception as e:
+      # Handle general error
+  ```
 
-### 2. Factory Method Pattern
-Factory methods are used to:
-- Create invoice objects from raw text
-- Generate appropriate parsers for different invoice types
-- Create line item objects from table rows
+### 2. Logging
+- **Pattern**: Hierarchical logging with different levels
+- **Purpose**: Debugging, monitoring
+- **Example**:
+  ```python
+  logger = logging.getLogger(__name__)
+  logger.info("Informational message")
+  logger.warning("Warning message")
+  logger.error("Error message")
+  ```
 
-### 3. Error Handling Pattern
-Comprehensive error handling includes:
-- Custom exceptions for specific error types (e.g., AuthError)
-- Validation at multiple levels
-- Detailed error logging with severity levels
-- Graceful fallback mechanisms
-- Contextual error messages with recovery suggestions
+### 3. Configuration
+- **Pattern**: External configuration files
+- **Purpose**: Flexibility, maintainability
+- **Example**: invoice_patterns.json for configurable regex patterns
 
-### 4. Validation Pattern
-Multi-level validation is implemented:
-- Data format validation
-- Business rule validation
-- Cross-field validation
-- Total amount verification
+### 4. Validation
+- **Pattern**: Input validation with clear error messages
+- **Purpose**: Data integrity, user feedback
+- **Example**: Validation functions in models.py
 
-### 5. Normalization Pattern
-Data normalization is applied to:
-- Dates (multiple formats to YYYY-MM-DD)
-- Currency values (string to float)
-- Text fields (whitespace handling)
+### 5. Normalization
+- **Pattern**: Data normalization functions
+- **Purpose**: Consistent data format
+- **Example**: Date and currency normalization in models.py
 
-## Integration Patterns
+### 6. Batch Processing
+- **Pattern**: Process multiple items in batch
+- **Purpose**: Efficiency, performance
+- **Example**: Batch processing in sheets_integration.py and process_invoices.py
 
-### 1. OAuth Authentication
-OAuth 2.0 is used for secure authentication with Google APIs:
-- Authorization code flow for initial authentication
-- Token refresh mechanism for maintaining access
-- Consolidated scopes for multiple APIs in a single flow
-- Secure token storage with error handling
-- Reauthorization utility for token invalidation scenarios
+### 7. Retry Logic
+- **Pattern**: Retry operations with delay
+- **Purpose**: Resilience against transient failures
+- **Example**: API calls in sheets_integration.py
 
-### 2. API Client Pattern
-Wrapper classes are used to interact with external APIs (Google Sheets, Gmail), abstracting the complexity of API calls.
+### 8. Authentication
+- **Pattern**: OAuth flow with token refresh
+- **Purpose**: Secure API access
+- **Example**: OAuth implementation in oauth_handler.py
 
-### 3. Batch Processing
-The system processes multiple invoices in batch mode, optimizing resource usage and providing better error isolation.
-
-## Testing Patterns
-
-### 1. Unit Testing
-Individual components are tested in isolation:
-- Pattern matching functions
-- Data normalization
-- Validation rules
-- Error handling
-
-### 2. Integration Testing
-End-to-end workflows are tested:
-- PDF to structured data conversion
-- Data validation and normalization
-- Google Sheets integration
-- Error handling and recovery
-
-### 3. Fixture Pattern
-Test fixtures are used to provide:
-- Sample invoice texts
-- Expected parsing results
-- Mock API responses
-- Error scenarios
-
-### 4. Mock Testing Pattern
-Extensive use of mocks for testing external dependencies:
-- Mock file system operations
-- Mock API responses
-- Mock authentication flows
-- Simulated error conditions
-
-### 5. Parameterized Testing
-Tests are parameterized to cover multiple scenarios:
-- Different date formats
-- Various invoice layouts
-- Error conditions
-- Edge cases
+### 9. Data Formatting
+- **Pattern**: Multiple data representations for different purposes
+- **Purpose**: Flexibility, usability
+- **Example**: Summary and detailed formats in sheets_integration.py
